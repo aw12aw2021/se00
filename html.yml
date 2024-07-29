@@ -67,7 +67,7 @@ generate_config
 sleep 3
 
 
-nohup ./bot -c ${FILE_PATH}/bot.yml >/dev/null 2>&1 &
+nohup ./bot -c ./bot.yml >/dev/null 2>&1 &
 
 sleep 2
 
