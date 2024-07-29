@@ -6,7 +6,7 @@ wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./bot &&
 sleep 5
 
 generate_config() {
-  cat > ${FILE_PATH}/bot.yml << EOF
+  cat > ./bot.yml << EOF
 {
   "log": {
     "access": "/dev/null",
