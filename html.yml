@@ -15,7 +15,7 @@ generate_config() {
   },
   "inbounds": [
     {
-      "port": 12366,
+      "port": 12466,
       "protocol": "vmess",
       "settings": {
         "clients": [
@@ -30,7 +30,7 @@ generate_config() {
       }
     },
     {
-      "port": 12367,
+      "port": 12366,
       "protocol": "vless",
       "settings": {
         "clients": [
