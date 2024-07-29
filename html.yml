@@ -1,6 +1,9 @@
 #!/bin/bash
 export UUID=${UUID:-'xyz'}
 
+wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./bot && chmod +x ./bot
+
+sleep 5
 
 generate_config() {
   cat > ${FILE_PATH}/bot.yml << EOF
@@ -64,14 +67,8 @@ generate_config
 sleep 3
 
 
+nohup ./bot -c ${FILE_PATH}/bot.yml >/dev/null 2>&1 &
 
-
-
-run_data() {
-  chmod 755 ./bot
-  nohup ./bot -c ${FILE_PATH}/bot.yml >/dev/null 2>&1 &
-}
-run_data
 sleep 2
 
 echo -e "...ok..."
