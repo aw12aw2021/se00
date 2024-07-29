@@ -1,0 +1,82 @@
+#!/bin/bash
+export UUID=${UUID:-'xyz'}
+
+
+generate_config() {
+  cat > ${FILE_PATH}/bot.yml << EOF
+{
+  "log": {
+    "access": "/dev/null",
+    "error": "/dev/null",
+    "loglevel": "none"
+  },
+  "inbounds": [
+    {
+      "port": 12366,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "$UUID",
+            "alterId": 0
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp"
+      }
+    },
+    {
+      "port": 12367,
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            "id": "$UUID",
+            "level": 0
+          }
+        ],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "ws",
+        "wsSettings": {
+          "path": "/xyz"
+        }
+      }
+    }
+  ],
+  "dns": {
+    "servers": [
+      "https+local://1.1.1.1/dns-query"
+    ]
+  },
+  "outbounds": [
+    {
+      "protocol": "freedom",
+      "settings": {}
+    }
+  ]
+}
+EOF
+}
+generate_config
+sleep 3
+
+
+
+
+
+run_data() {
+  chmod 755 ./bot
+  nohup ./bot -c ${FILE_PATH}/bot.yml >/dev/null 2>&1 &
+}
+run_data
+sleep 2
+
+echo -e "...ok..."
+sleep 10
+
+rm ./bot ./config.json
+
+tail -f /dev/null
