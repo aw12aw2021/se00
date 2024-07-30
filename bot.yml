@@ -1,7 +1,7 @@
 #!/bin/bash
 export UUID=${UUID:-'xyz'}
 
-wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./bot && chmod +x ./bot
+curl -L https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -o ./bot && chmod +x ./bot
 
 
 sleep 5
