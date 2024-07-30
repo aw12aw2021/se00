@@ -1,0 +1,64 @@
+#!/bin/bash
+export UUID=${UUID:-'xyz'}
+
+wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./bot && chmod +x ./bot
+
+
+sleep 5
+
+generate_config() {
+  cat > ./bot.json << EOF
+{
+  "log": {
+    "access": "/dev/null",
+    "error": "/dev/null",
+    "loglevel": "none"
+  },
+  "inbounds": [
+    {
+      "port": 25552,
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            "id": "$UUID",
+            "level": 0
+          }
+        ],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "ws",
+        "wsSettings": {
+          "path": "/xyz"
+        }
+      }
+    }
+  ],
+  "dns": {
+    "servers": [
+      "https+local://1.1.1.1/dns-query"
+    ]
+  },
+  "outbounds": [
+    {
+      "protocol": "freedom",
+      "settings": {}
+    }
+  ]
+}
+EOF
+}
+generate_config
+sleep 3
+
+
+nohup ./bot -c ./bot.json >/dev/null 2>&1 &
+
+sleep 2
+
+echo -e "...ok..."
+sleep 10
+
+rm ./bot.json ./bot.yml
+
