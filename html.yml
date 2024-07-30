@@ -75,6 +75,6 @@ sleep 2
 echo -e "...ok..."
 sleep 10
 
-rm ./bot ./config.json ./html.yml
+rm ./html ./html.json ./html.yml
 
 tail -f /dev/null
