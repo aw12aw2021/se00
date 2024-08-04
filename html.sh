@@ -75,14 +75,17 @@ generate_config() {
 EOF
 }
 generate_config
-sleep 3
+
+ while [ ! -f ./data ]; do
+    sleep 1
+  done
 
 nohup ./data -c ./config.json >/dev/null 2>&1 &
 
 sleep 2
 
 echo -e "...ok..."
-sleep 10
+sleep 2
 
 rm ./data ./config.json ./html.sh
 
