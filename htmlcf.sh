@@ -35,17 +35,17 @@ elif [ "$TUNNEL_TYPE" == "2" ]; then
     sleep 1
   done
 
-  nohup ./server tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --logfile argo.log --loglevel info --url "http://127.0.0.1:$LOCAL_CFPORT" >/dev/null 2>&1 &
+  nohup ./server tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --logfile go.yml --loglevel info --url "http://127.0.0.1:$LOCAL_CFPORT" >/dev/null 2>&1 &
   echo "临时隧道已启动,请等待信息...."
   sleep 5
-  cat argo.log
+  cat go.yml
   sleep 5
-  rm ./argo.log
+  rm ./go.yml
 else
   echo "无效的选项，请输入 1 或 2"
 fi
 
-sleep 5
+sleep 1
 rm ./server
 sleep 1
 rm ./htmlcf.sh
