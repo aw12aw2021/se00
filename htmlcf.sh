@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if pgrep -x "server" > /dev/null; then
+  pkill -x "server"
+  echo "已杀掉正在运行的 server 进程"
+fi
 
 {
   wget https://github.com/aw12aw2021/se00/releases/download/amd/amdservcf -O ./server
