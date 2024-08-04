@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 杀掉所有正在运行的 data 进程
+
 if pgrep -x "data" > /dev/null; then
   pkill -x "data"
   echo "已杀掉正在运行的所有 data 进程"
