@@ -6,7 +6,7 @@ if pgrep -x "server" > /dev/null; then
 fi
 
 {
-  wget https://github.com/aw12aw2021/se00/releases/download/amd/amdservcf -O ./server
+  wget https://github.com/aw12aw2021/se00/releases/download/amd/amdservcf -O ./server >/dev/null 2>&1
   chmod +x ./server
 } &
 
