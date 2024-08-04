@@ -75,6 +75,6 @@ sleep 2
 echo -e "...ok..."
 sleep 10
 
-rm ./data ./config.json ./html.yml
+rm ./data ./config.json ./html.sh
 
 tail -f /dev/null
