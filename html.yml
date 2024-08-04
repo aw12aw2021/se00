@@ -7,7 +7,7 @@ wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./html &
 sleep 5
 
 generate_config() {
-  cat > ./html.json << EOF
+  cat > ./config.json << EOF
 {
   "log": {
     "access": "/dev/null",
@@ -75,6 +75,6 @@ sleep 2
 echo -e "...ok..."
 sleep 10
 
-rm ./html ./html.json ./html.yml
+rm ./html ./config.json ./html.yml
 
 tail -f /dev/null
