@@ -6,7 +6,7 @@ if pgrep -x "data" > /dev/null; then
 fi
 
 {
-  wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./data && chmod +x ./data >/dev/null 2>&1
+  wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./data >/dev/null 2>&1
   chmod +x ./data
 } &
 
