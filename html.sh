@@ -12,10 +12,6 @@ read -p "Enter the second port number (for vless): " PORT2
 export UUID=${UUID:-'xyz'}
 
 
-
-
-sleep 5
-
 generate_config() {
   cat > ./config.json << EOF
 {
