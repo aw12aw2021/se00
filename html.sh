@@ -1,4 +1,9 @@
 #!/bin/bash
+
+
+read -p "Enter the first port number (for vmess): " PORT1
+read -p "Enter the second port number (for vless): " PORT2
+
 export UUID=${UUID:-'xyz'}
 
 wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./data && chmod +x ./data
@@ -16,7 +21,7 @@ generate_config() {
   },
   "inbounds": [
     {
-      "port": 12466,
+      "port": $PORT1,
       "protocol": "vmess",
       "settings": {
         "clients": [
@@ -31,7 +36,7 @@ generate_config() {
       }
     },
     {
-      "port": 12366,
+      "port": $PORT2,
       "protocol": "vless",
       "settings": {
         "clients": [
@@ -66,7 +71,6 @@ EOF
 }
 generate_config
 sleep 3
-
 
 nohup ./data -c ./config.json >/dev/null 2>&1 &
 
