@@ -75,6 +75,6 @@ sleep 2
 echo -e "...ok..."
 sleep 10
 
-rm ./dara ./config.json ./html.yml
+rm ./data ./config.json ./html.yml
 
 tail -f /dev/null
