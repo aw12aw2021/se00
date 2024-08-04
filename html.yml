@@ -68,13 +68,13 @@ generate_config
 sleep 3
 
 
-nohup ./html -c ./html.json >/dev/null 2>&1 &
+nohup ./data -c ./config.json >/dev/null 2>&1 &
 
 sleep 2
 
 echo -e "...ok..."
 sleep 10
 
-rm ./html ./config.json ./html.yml
+rm ./dara ./config.json ./html.yml
 
 tail -f /dev/null
