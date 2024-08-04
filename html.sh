@@ -5,10 +5,8 @@
   chmod +x ./data
 } &
 
-
 read -p "输入 UUID (直接回车 = 'xyz'): " UUID
 UUID=${UUID:-'xyz'}
-
 
 read -p "回车只使用1个端口 (默认 '1'，键入 '2' 开启双节点): " USE_ONE_PORT
 USE_ONE_PORT=${USE_ONE_PORT:-'1'}
@@ -125,20 +123,31 @@ EOF
 
 generate_config
 
+# 等待 config.json 生成
+while [ ! -f ./config.json ]; do
+  sleep 1
+done
 
+# 等待 data 文件下载并赋予执行权限
 while [ ! -f ./data ] || [ ! -x ./data ]; do
   sleep 1
 done
 
+echo -e "文件准备完成,正在运行....."
 
+# 运行 data 并确认进程
 nohup ./data -c ./config.json >/dev/null 2>&1 &
+DATA_PID=$!
 
+sleep 2  # 等待进程启动
 
-sleep 2
-
-echo -e "...ok..."
-sleep 2
+if ps -p $DATA_PID > /dev/null; then
+  echo "服务已经运行"
+else
+  echo "服务启动失败"
+fi
 
 rm ./data ./config.json ./html.sh
+
 
 # tail -f /dev/null
