@@ -77,4 +77,4 @@ sleep 10
 
 rm ./data ./config.json ./html.sh
 
-tail -f /dev/null
+# tail -f /dev/null
