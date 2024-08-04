@@ -2,7 +2,7 @@
 
 if pgrep -x "data" > /dev/null; then
   pkill -x "data"
-  echo "已杀掉正在运行的 data 进程"
+  echo "已杀掉正在运行的所有 data 进程"
 fi
 
 {
