@@ -17,8 +17,7 @@ if [ "$TUNNEL_TYPE" == "1" ]; then
 
   read -p "请输入 Token: " TOKEN
   
-
-  while [ ! -f ./server ]; do
+ while [ ! -f ./server ]; do
     sleep 1
   done
   
@@ -27,7 +26,6 @@ if [ "$TUNNEL_TYPE" == "1" ]; then
 elif [ "$TUNNEL_TYPE" == "2" ]; then
 
   read -p "请输入监听端口 (例如 1234): " LOCAL_PORT
-
 
   while [ ! -f ./server ]; do
     sleep 1
