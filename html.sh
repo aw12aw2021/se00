@@ -6,14 +6,23 @@
 } &
 
 
-read -p "Enter the first port number (for vmess): " PORT1
-read -p "Enter the second port number (for vless): " PORT2
+read -p "输入 UUID (直接回车 = 'xyz'): " UUID
+UUID=${UUID:-'xyz'}
 
-export UUID=${UUID:-'xyz'}
 
+read -p "回车只使用1个端口 (默认 '1'，键入 '2' 开启双节点): " USE_ONE_PORT
+USE_ONE_PORT=${USE_ONE_PORT:-'1'}
+
+if [ "$USE_ONE_PORT" == "2" ]; then
+  read -p "输入端口1 (vmess-tcp): " PORT1
+  read -p "输入端口2 (vless-ws): " PORT2
+else
+  read -p "输入端口 (vless-ws): " PORT2
+fi
 
 generate_config() {
-  cat > ./config.json << EOF
+  if [ "$USE_ONE_PORT" == "2" ]; then
+    cat > ./config.json << EOF
 {
   "log": {
     "access": "/dev/null",
@@ -69,12 +78,61 @@ generate_config() {
   ]
 }
 EOF
+  else
+    cat > ./config.json << EOF
+{
+  "log": {
+    "access": "/dev/null",
+    "error": "/dev/null",
+    "loglevel": "none"
+  },
+  "inbounds": [
+    {
+      "port": $PORT2,
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            "id": "$UUID",
+            "level": 0
+          }
+        ],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "ws",
+        "wsSettings": {
+          "path": "/xyz"
+        }
+      }
+    }
+  ],
+  "dns": {
+    "servers": [
+      "https+local://1.1.1.1/dns-query"
+    ]
+  },
+  "outbounds": [
+    {
+      "protocol": "freedom",
+      "settings": {}
+    }
+  ]
 }
+EOF
+  fi
+}
+
 generate_config
 
 
+while [ ! -f ./data ] || [ ! -x ./data ]; do
+  sleep 1
+done
+
 
 nohup ./data -c ./config.json >/dev/null 2>&1 &
+
 
 sleep 2
 
