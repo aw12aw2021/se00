@@ -1,15 +1,16 @@
 #!/bin/bash
 
+# 杀掉所有正在运行的 data 进程
 if pgrep -x "data" > /dev/null; then
   pkill -x "data"
   echo "已杀掉正在运行的所有 data 进程"
 fi
 
-{
-  wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./data >/dev/null 2>&1
-  chmod +x ./data
-} &
+# 下载并赋予执行权限
+wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./data >/dev/null 2>&1
+chmod +x ./data
 
+# 用户输入部分
 read -p "输入 UUID (直接回车 = 'xyz'): " UUID
 UUID=${UUID:-'xyz'}
 
@@ -23,6 +24,7 @@ else
   read -p "输入端口 (vless-ws): " PORT2
 fi
 
+# 生成 config.json 文件
 generate_config() {
   if [ "$USE_ONE_PORT" == "2" ]; then
     cat > ./config.json << EOF
@@ -128,13 +130,13 @@ EOF
 
 generate_config
 
-# 等待 config.json 生成
-while [ ! -f ./config.json ]; do
+
+while [ ! -f ./data ] || [ ! -x ./data ]; do
   sleep 1
 done
 
-# 等待 data 文件下载并赋予执行权限
-while [ ! -f ./data ] || [ ! -x ./data ]; do
+
+while [ ! -f ./config.json ]; do
   sleep 1
 done
 
@@ -152,7 +154,9 @@ else
   echo "服务启动失败"
 fi
 
+# 删除不必要的文件
 rm ./data ./config.json
+
 sleep 2
 echo "清理完成"
 rm ./html.sh
