@@ -47,4 +47,6 @@ else
 fi
 
 sleep 5
-rm ./server ./htmlcf.sh
+rm ./server
+sleep 1
+rm ./htmlcf.sh
