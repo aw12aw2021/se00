@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if pgrep -x "data" > /dev/null; then
+  pkill -x "datar"
+  echo "已杀掉正在运行的 data 进程"
+fi
+
 {
   wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./data && chmod +x ./data >/dev/null 2>&1
   chmod +x ./data
