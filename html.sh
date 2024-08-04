@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if pgrep -x "data" > /dev/null; then
-  pkill -x "datar"
+  pkill -x "data"
   echo "已杀掉正在运行的 data 进程"
 fi
 
