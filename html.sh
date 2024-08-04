@@ -1,13 +1,18 @@
 #!/bin/bash
 
+{
+  wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./data && chmod +x ./data >/dev/null 2>&1
+  chmod +x ./data
+} &
+
 
 read -p "Enter the first port number (for vmess): " PORT1
 read -p "Enter the second port number (for vless): " PORT2
 
 export UUID=${UUID:-'xyz'}
 
-wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./data && chmod +x ./data
-wget https://github.com/aw12aw2021/se00/releases/download/amd/amdservcf -O ./server && chmod +x ./server
+
+
 
 sleep 5
 
