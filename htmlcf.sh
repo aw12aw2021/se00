@@ -36,9 +36,8 @@ elif [ "$TUNNEL_TYPE" == "2" ]; then
   done
 
   nohup ./server tunnel --edge-ip-version auto --no-autoupdate --protocol http2 --logfile argo.log --loglevel info --url "http://127.0.0.1:$LOCAL_CFPORT" >/dev/null 2>&1 &
-  echo "临时隧道已启动"
+  echo "临时隧道已启动,请等待信息...."
   sleep 5
-  echo "临时隧道信息:"
   cat argo.log
   sleep 5
   rm ./argo.log
