@@ -72,9 +72,7 @@ EOF
 }
 generate_config
 
- while [ ! -f ./data ]; do
-    sleep 1
-  done
+
 
 nohup ./data -c ./config.json >/dev/null 2>&1 &
 
