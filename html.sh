@@ -152,7 +152,10 @@ else
   echo "服务启动失败"
 fi
 
-rm ./data ./config.json ./html.sh
+rm ./data ./config.json
+sleep 2
+echo "清理完成"
+rm ./html.sh
 
 
 # tail -f /dev/null
