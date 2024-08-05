@@ -48,4 +48,5 @@ fi
 sleep 1
 rm ./server
 sleep 1
+echo "清理完成"
 rm ./htmlcf.sh
