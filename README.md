@@ -9,6 +9,6 @@ wget https://raw.githubusercontent.com/aw12aw2021/se00/main/htmlcf.sh -O htmlcf.
 
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/aw12aw2021/nezha4serv00/main/install-agent.sh)
+bash <(curl -s https://raw.githubusercontent.com/aw12aw2021/se00/main/agent.sh)
 ```
 
