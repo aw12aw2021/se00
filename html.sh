@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# 常量定义
 DATA_URL="https://github.com/aw12aw2021/se00/releases/download/amd/amdweb"
 DATA_FILE="./data"
 CONFIG_FILE="./config.json"
