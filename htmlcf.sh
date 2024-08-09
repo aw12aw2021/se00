@@ -45,7 +45,7 @@ else
   echo "无效的选项，请输入 1 或 2"
 fi
 
-sleep 1
+sleep 5
 rm ./server
 sleep 1
 echo "清理完成"
