@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# 常量定义
+DATA_URL="https://github.com/aw12aw2021/se00/releases/download/amd/amdweb"
+DATA_FILE="./data"
+CONFIG_FILE="./config.json"
+UUID_DEFAULT='xyz'
+PORT_PATH="/xyz"
+
+
+command -v wget >/dev/null 2>&1 || { echo >&2 "需要 wget，但未安装。请安装后重试。"; exit 1; }
+
 
 if pgrep -x "data" > /dev/null; then
   pkill -x "data"
@@ -8,15 +18,19 @@ fi
 
 
 {
-  wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./data >/dev/null 2>&1
-  chmod +x ./data
+  wget "$DATA_URL" -O "$DATA_FILE" >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "文件下载失败，请检查网络或 URL 是否正确。"
+    exit 1
+  fi
+  chmod +x "$DATA_FILE"
 } &
 
 
-read -p "输入 UUID (直接回车 = 'xyz'): " UUID
-UUID=${UUID:-'xyz'}
+read -p "输入 UUID (直接回车 = '$UUID_DEFAULT'): " UUID
+UUID=${UUID:-$UUID_DEFAULT}
 
-read -p "回车只使用1个端口 (默认 '1'，键入 '2' 开启双节点): " USE_ONE_PORT
+read -p "回车只使用1个端口,节点类型 vless-ws (默认 '1'，键入 '2' 开启 vless-ws + vmess-ws ): " USE_ONE_PORT
 USE_ONE_PORT=${USE_ONE_PORT:-'1'}
 
 if [ "$USE_ONE_PORT" == "2" ]; then
@@ -29,7 +43,7 @@ fi
 
 generate_config() {
   if [ "$USE_ONE_PORT" == "2" ]; then
-    cat > ./config.json << EOF
+    cat > "$CONFIG_FILE" << EOF
 {
   "log": {
     "access": "/dev/null",
@@ -51,7 +65,7 @@ generate_config() {
       "streamSettings": {
         "network": "ws",
         "wsSettings": {
-          "path": "/xyz"
+          "path": "$PORT_PATH"
         }
       }
     },
@@ -70,7 +84,7 @@ generate_config() {
       "streamSettings": {
         "network": "ws",
         "wsSettings": {
-          "path": "/xyz"
+          "path": "$PORT_PATH"
         }
       }
     }
@@ -89,7 +103,7 @@ generate_config() {
 }
 EOF
   else
-    cat > ./config.json << EOF
+    cat > "$CONFIG_FILE" << EOF
 {
   "log": {
     "access": "/dev/null",
@@ -112,7 +126,7 @@ EOF
       "streamSettings": {
         "network": "ws",
         "wsSettings": {
-          "path": "/xyz"
+          "path": "$PORT_PATH"
         }
       }
     }
@@ -136,22 +150,30 @@ EOF
 generate_config
 
 
-while [ ! -f ./data ] || [ ! -x ./data ]; do
+timeout=30
+start_time=$(date +%s)
+while [ ! -f "$DATA_FILE" ] || [ ! -x "$DATA_FILE" ]; do
   sleep 1
+  current_time=$(date +%s)
+  if [ $((current_time - start_time)) -ge $timeout ]; then
+    echo "等待 data 文件准备超时，脚本退出。"
+    exit 1
+  fi
 done
 
 
-while [ ! -f ./config.json ]; do
-  sleep 1
-done
+if [ ! -f "$CONFIG_FILE" ]; then
+  echo "配置文件生成失败，脚本退出。"
+  exit 1
+fi
 
 echo -e "文件准备完成,正在运行....."
 
 
-nohup ./data -c ./config.json >/dev/null 2>&1 &
+nohup "$DATA_FILE" -c "$CONFIG_FILE" >/dev/null 2>&1 &
 DATA_PID=$!
 
-sleep 2  
+
 
 if ps -p $DATA_PID > /dev/null; then
   echo "服务已经运行"
@@ -160,7 +182,7 @@ else
 fi
 
 
-rm ./data ./config.json
+rm "$DATA_FILE" "$CONFIG_FILE"
 
 sleep 2
 echo "清理完成"
