@@ -26,8 +26,9 @@ fi
 } &
 
 
-read -p "输入 '1' 选择节点 vless-ws
-输入 '2' 选择节点 vmess-ws + vless-ws: " USE_ONE_PORT
+echo "输入 '1' >>>>节点 vless-ws"
+echo "输入 '2' >>>>节点 vmess-ws + vless-ws"
+read -p "请输入选项: " USE_ONE_PORT
 
 read -p "输入 UUID (直接回车 = '$UUID_DEFAULT'): " UUID
 UUID=${UUID:-$UUID_DEFAULT}
