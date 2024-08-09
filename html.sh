@@ -29,7 +29,8 @@ fi
 read -p "输入 UUID (直接回车 = '$UUID_DEFAULT'): " UUID
 UUID=${UUID:-$UUID_DEFAULT}
 
-read -p "默认回车('1')节点类型 vless-ws -----[键入 '2' 开启 vless-ws + vmess-ws ]: " USE_ONE_PORT
+read -p " '1'  vless-ws\n '2'  vmess-ws + vless-ws: " USE_ONE_PORT
+
 USE_ONE_PORT=${USE_ONE_PORT:-'1'}
 
 if [ "$USE_ONE_PORT" == "2" ]; then
