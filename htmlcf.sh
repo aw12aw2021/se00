@@ -26,7 +26,8 @@ if [ "$TUNNEL_TYPE" == "1" ]; then
   done
   
   nohup ./server tunnel --edge-ip-version auto run --protocol http2 --token "$TOKEN" >/dev/null 2>&1 &
-  echo "固定隧道已启动"
+  echo "固定隧道已启动,等待清理文件"
+  sleep 5
 elif [ "$TUNNEL_TYPE" == "2" ]; then
 
   read -p "请输入监听端口 (例如 1234): " LOCAL_CFPORT
@@ -45,7 +46,7 @@ else
   echo "无效的选项，请输入 1 或 2"
 fi
 
-sleep 5
+sleep 1
 rm ./server
 sleep 1
 echo "清理完成"
