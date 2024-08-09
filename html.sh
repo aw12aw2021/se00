@@ -1,15 +1,12 @@
 #!/bin/bash
 
-
 if pgrep -x "data" > /dev/null; then
   pkill -x "data"
   echo "已杀掉正在运行的所有 data 进程"
 fi
 
-
 wget https://github.com/aw12aw2021/se00/releases/download/amd/amdweb -O ./data >/dev/null 2>&1
 chmod +x ./data
-
 
 read -p "输入 UUID (直接回车 = 'xyz'): " UUID
 UUID=${UUID:-'xyz'}
@@ -18,12 +15,11 @@ read -p "回车只使用1个端口 (默认 '1'，键入 '2' 开启双节点): " 
 USE_ONE_PORT=${USE_ONE_PORT:-'1'}
 
 if [ "$USE_ONE_PORT" == "2" ]; then
-  read -p "输入端口1 (vmess-tcp): " PORT1
+  read -p "输入端口1 (vmess-ws): " PORT1
   read -p "输入端口2 (vless-ws): " PORT2
 else
   read -p "输入端口 (vless-ws): " PORT2
 fi
-
 
 generate_config() {
   if [ "$USE_ONE_PORT" == "2" ]; then
@@ -47,7 +43,10 @@ generate_config() {
         ]
       },
       "streamSettings": {
-        "network": "tcp"
+        "network": "ws",
+        "wsSettings": {
+          "path": "/xyz"
+        }
       }
     },
     {
@@ -130,18 +129,15 @@ EOF
 
 generate_config
 
-
 while [ ! -f ./data ] || [ ! -x ./data ]; do
   sleep 1
 done
-
 
 while [ ! -f ./config.json ]; do
   sleep 1
 done
 
 echo -e "文件准备完成,正在运行....."
-
 
 nohup ./data -c ./config.json >/dev/null 2>&1 &
 DATA_PID=$!
@@ -154,12 +150,10 @@ else
   echo "服务启动失败"
 fi
 
-
 rm ./data ./config.json
 
 sleep 2
 echo "清理完成"
 rm ./html.sh
-
 
 # tail -f /dev/null
