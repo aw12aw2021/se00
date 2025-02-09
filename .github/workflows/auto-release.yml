@@ -2,8 +2,8 @@ name: Auto Release Cloudflared
 
 on:
   schedule:
-    - cron: '0 0 */15 * *'  # 每15天运行一次
-  workflow_dispatch:  # 允许手动触发
+    - cron: '0 0 */15 * *'
+  workflow_dispatch:
 
 jobs:
   create-release:
@@ -14,13 +14,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install UPX
+        run: sudo apt-get update && sudo apt-get install -y upx
+
       - name: Get latest cloudflared version
         id: get_version
         run: |
           LATEST_VERSION=$(curl -s https://api.github.com/repos/cloudflare/cloudflared/releases/latest | jq -r .tag_name)
           echo "latest_version=${LATEST_VERSION}" >> $GITHUB_OUTPUT
           
-      - name: Download binaries
+      - name: Download and compress binaries
         run: |
           VERSION=${{ steps.get_version.outputs.latest_version }}
           
@@ -32,25 +35,51 @@ jobs:
           curl -L "https://github.com/cloudflare/cloudflared/releases/download/${VERSION}/cloudflared-linux-arm64" -o cloudflared-linux-arm64
           chmod +x cloudflared-linux-arm64
           
-          # Generate SHA256 checksums
-          sha256sum cloudflared-linux-amd64 > SHA256SUMS
+          # Create compressed versions
+          cp cloudflared-linux-amd64 cloudflared-linux-amd64-compressed
+          cp cloudflared-linux-arm64 cloudflared-linux-arm64-compressed
+          
+          # Compress with UPX (level 9 for best compression)
+          upx -9 cloudflared-linux-amd64-compressed
+          upx -9 cloudflared-linux-arm64-compressed
+          
+          # Generate SHA256 checksums for all files
+          echo "# Original binaries:" > SHA256SUMS
+          sha256sum cloudflared-linux-amd64 >> SHA256SUMS
           sha256sum cloudflared-linux-arm64 >> SHA256SUMS
+          echo -e "\n# UPX compressed binaries:" >> SHA256SUMS
+          sha256sum cloudflared-linux-amd64-compressed >> SHA256SUMS
+          sha256sum cloudflared-linux-arm64-compressed >> SHA256SUMS
 
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.get_version.outputs.latest_version }}
-          name: Release ${{ steps.get_version.outputs.latest_version }}
+          name: cloudflared ${{ steps.get_version.outputs.latest_version }}
           body: |
-            Cloudflared ${{ steps.get_version.outputs.latest_version }}
+            cloudflared ${{ steps.get_version.outputs.latest_version }}
             
             Automated release of cloudflared binaries.
+            This release includes both original and UPX compressed versions.
+            
+            UPX compressed versions have significantly smaller file size but same functionality.
+            Choose compressed versions if you want to save space.
             
             SHA256 checksums are provided in SHA256SUMS file.
           files: |
             cloudflared-linux-amd64
             cloudflared-linux-arm64
+            cloudflared-linux-amd64-compressed
+            cloudflared-linux-arm64-compressed
             SHA256SUMS
           draft: false
           prerelease: false
+
+      - name: Delete old releases
+        uses: dev-drprasad/delete-older-releases@v0.3.2
+        with:
+          keep_latest: 3
+          delete_tags: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
