@@ -35,43 +35,67 @@ jobs:
           curl -L "https://github.com/cloudflare/cloudflared/releases/download/${VERSION}/cloudflared-linux-arm64" -o cloudflared-linux-arm64
           chmod +x cloudflared-linux-arm64
           
-          # Create compressed versions
-          cp cloudflared-linux-amd64 cloudflared-linux-amd64-compressed
-          cp cloudflared-linux-arm64 cloudflared-linux-arm64-compressed
+          # Create compressed versions for AMD64
+          cp cloudflared-linux-amd64 cloudflared-linux-amd64-2x
+          cp cloudflared-linux-amd64 cloudflared-linux-amd64-5x
+          cp cloudflared-linux-amd64 cloudflared-linux-amd64-9x
           
-          # Compress with UPX (level 9 for best compression)
-          upx -9 cloudflared-linux-amd64-compressed
-          upx -9 cloudflared-linux-arm64-compressed
+          # Create compressed versions for ARM64
+          cp cloudflared-linux-arm64 cloudflared-linux-arm64-2x
+          cp cloudflared-linux-arm64 cloudflared-linux-arm64-5x
+          cp cloudflared-linux-arm64 cloudflared-linux-arm64-9x
+          
+          # Compress with UPX at different levels
+          upx -2 cloudflared-linux-amd64-2x cloudflared-linux-arm64-2x
+          upx -5 cloudflared-linux-amd64-5x cloudflared-linux-arm64-5x
+          upx -9 cloudflared-linux-amd64-9x cloudflared-linux-arm64-9x
           
           # Generate SHA256 checksums for all files
           echo "# Original binaries:" > SHA256SUMS
           sha256sum cloudflared-linux-amd64 >> SHA256SUMS
           sha256sum cloudflared-linux-arm64 >> SHA256SUMS
-          echo -e "\n# UPX compressed binaries:" >> SHA256SUMS
-          sha256sum cloudflared-linux-amd64-compressed >> SHA256SUMS
-          sha256sum cloudflared-linux-arm64-compressed >> SHA256SUMS
+          echo -e "\n# UPX compressed binaries (2x):" >> SHA256SUMS
+          sha256sum cloudflared-linux-amd64-2x >> SHA256SUMS
+          sha256sum cloudflared-linux-arm64-2x >> SHA256SUMS
+          echo -e "\n# UPX compressed binaries (5x):" >> SHA256SUMS
+          sha256sum cloudflared-linux-amd64-5x >> SHA256SUMS
+          sha256sum cloudflared-linux-arm64-5x >> SHA256SUMS
+          echo -e "\n# UPX compressed binaries (9x):" >> SHA256SUMS
+          sha256sum cloudflared-linux-amd64-9x >> SHA256SUMS
+          sha256sum cloudflared-linux-arm64-9x >> SHA256SUMS
 
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.get_version.outputs.latest_version }}
-          name: cloudflared ${{ steps.get_version.outputs.latest_version }}
+          tag_name: cloudflared
+          name: cloudflared
           body: |
             cloudflared ${{ steps.get_version.outputs.latest_version }}
             
             Automated release of cloudflared binaries.
-            This release includes both original and UPX compressed versions.
             
-            UPX compressed versions have significantly smaller file size but same functionality.
-            Choose compressed versions if you want to save space.
+            This release includes:
+            - Original versions
+            - 2x compressed versions (UPX level 2)
+            - 5x compressed versions (UPX level 5)
+            - 9x compressed versions (UPX level 9)
+            
+            Choose compression level based on your needs:
+            - 2x: Faster compression, moderate size reduction
+            - 5x: Balanced compression
+            - 9x: Maximum compression, slower decompression
             
             SHA256 checksums are provided in SHA256SUMS file.
           files: |
             cloudflared-linux-amd64
             cloudflared-linux-arm64
-            cloudflared-linux-amd64-compressed
-            cloudflared-linux-arm64-compressed
+            cloudflared-linux-amd64-2x
+            cloudflared-linux-arm64-2x
+            cloudflared-linux-amd64-5x
+            cloudflared-linux-arm64-5x
+            cloudflared-linux-amd64-9x
+            cloudflared-linux-arm64-9x
             SHA256SUMS
           draft: false
           prerelease: false
