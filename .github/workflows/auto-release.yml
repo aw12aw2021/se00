@@ -27,42 +27,55 @@ jobs:
         run: |
           VERSION=${{ steps.get_version.outputs.latest_version }}
           
-          # Download AMD64 binary
+          # Download binaries
           curl -L "https://github.com/cloudflare/cloudflared/releases/download/${VERSION}/cloudflared-linux-amd64" -o cloudflared-linux-amd64
-          chmod +x cloudflared-linux-amd64
-          
-          # Download ARM64 binary
           curl -L "https://github.com/cloudflare/cloudflared/releases/download/${VERSION}/cloudflared-linux-arm64" -o cloudflared-linux-arm64
-          chmod +x cloudflared-linux-arm64
+          chmod +x cloudflared-linux-*
           
-          # Create compressed versions for AMD64
-          cp cloudflared-linux-amd64 cloudflared-linux-amd64-2x
-          cp cloudflared-linux-amd64 cloudflared-linux-amd64-5x
-          cp cloudflared-linux-amd64 cloudflared-linux-amd64-9x
+          # Record original sizes
+          echo "Original file sizes:" > SIZE_INFO
+          ls -lh cloudflared-linux-* >> SIZE_INFO
           
-          # Create compressed versions for ARM64
-          cp cloudflared-linux-arm64 cloudflared-linux-arm64-2x
-          cp cloudflared-linux-arm64 cloudflared-linux-arm64-5x
-          cp cloudflared-linux-arm64 cloudflared-linux-arm64-9x
+          # Create compressed versions
+          for ARCH in amd64 arm64; do
+            # 2x compression (--best --lzma --no-compress-icons)
+            cp cloudflared-linux-${ARCH} cloudflared-linux-${ARCH}-2x
+            upx --best --lzma --no-compress-icons cloudflared-linux-${ARCH}-2x
+            
+            # 5x compression (--brute --lzma --no-compress-icons)
+            cp cloudflared-linux-${ARCH} cloudflared-linux-${ARCH}-5x
+            upx --brute --lzma --no-compress-icons cloudflared-linux-${ARCH}-5x
+            
+            # 9x compression (--ultra-brute --lzma --all-methods --no-compress-icons)
+            cp cloudflared-linux-${ARCH} cloudflared-linux-${ARCH}-9x
+            upx --ultra-brute --lzma --all-methods --no-compress-icons cloudflared-linux-${ARCH}-9x
+          done
           
-          # Compress with UPX at different levels
-          upx -2 cloudflared-linux-amd64-2x cloudflared-linux-arm64-2x
-          upx -5 cloudflared-linux-amd64-5x cloudflared-linux-arm64-5x
-          upx -9 cloudflared-linux-amd64-9x cloudflared-linux-arm64-9x
+          # Record compressed sizes
+          echo -e "\nCompressed file sizes:" >> SIZE_INFO
+          ls -lh cloudflared-linux-*-[259]x >> SIZE_INFO
           
-          # Generate SHA256 checksums for all files
+          # Generate SHA256 checksums
           echo "# Original binaries:" > SHA256SUMS
           sha256sum cloudflared-linux-amd64 >> SHA256SUMS
           sha256sum cloudflared-linux-arm64 >> SHA256SUMS
           echo -e "\n# UPX compressed binaries (2x):" >> SHA256SUMS
-          sha256sum cloudflared-linux-amd64-2x >> SHA256SUMS
-          sha256sum cloudflared-linux-arm64-2x >> SHA256SUMS
+          sha256sum cloudflared-linux-*-2x >> SHA256SUMS
           echo -e "\n# UPX compressed binaries (5x):" >> SHA256SUMS
-          sha256sum cloudflared-linux-amd64-5x >> SHA256SUMS
-          sha256sum cloudflared-linux-arm64-5x >> SHA256SUMS
+          sha256sum cloudflared-linux-*-5x >> SHA256SUMS
           echo -e "\n# UPX compressed binaries (9x):" >> SHA256SUMS
-          sha256sum cloudflared-linux-amd64-9x >> SHA256SUMS
-          sha256sum cloudflared-linux-arm64-9x >> SHA256SUMS
+          sha256sum cloudflared-linux-*-9x >> SHA256SUMS
+          
+          # Verify all files are executable and not corrupted
+          echo -e "\nVerifying compressed files:" >> SIZE_INFO
+          for file in cloudflared-linux-*; do
+            if ./$file --version >/dev/null 2>&1; then
+              echo "$file: OK" >> SIZE_INFO
+            else
+              echo "$file: FAILED" >> SIZE_INFO
+              exit 1
+            fi
+          done
 
       - name: Create Release
         id: create_release
@@ -71,21 +84,20 @@ jobs:
           tag_name: cloudflared
           name: cloudflared
           body: |
-            cloudflared ${{ steps.get_version.outputs.latest_version }}
+            Cloudflared Version: ${{ steps.get_version.outputs.latest_version }}
             
-            Automated release of cloudflared binaries.
+            Automated release of cloudflared binaries with different compression levels.
             
-            This release includes:
-            - Original versions
-            - 2x compressed versions (UPX level 2)
-            - 5x compressed versions (UPX level 5)
-            - 9x compressed versions (UPX level 9)
+            ```
+            $(cat SIZE_INFO)
+            ```
             
-            Choose compression level based on your needs:
-            - 2x: Faster compression, moderate size reduction
-            - 5x: Balanced compression
+            Compression levels:
+            - 2x: Basic compression, faster decompression
+            - 5x: Medium compression, balanced performance
             - 9x: Maximum compression, slower decompression
             
+            All binaries have been verified to work correctly.
             SHA256 checksums are provided in SHA256SUMS file.
           files: |
             cloudflared-linux-amd64
@@ -97,6 +109,7 @@ jobs:
             cloudflared-linux-amd64-9x
             cloudflared-linux-arm64-9x
             SHA256SUMS
+            SIZE_INFO
           draft: false
           prerelease: false
 
